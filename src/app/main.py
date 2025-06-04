@@ -15,6 +15,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan context manager."""
     from .database import create_tables
 
+    # Import models to register them with SQLAlchemy metadata
+    from .models import Widget  # noqa: F401
+
     # Startup
     print("Starting up Widget CRUD API...")
     await create_tables()

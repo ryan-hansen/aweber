@@ -3,7 +3,11 @@
 from typing import AsyncGenerator
 import os
 
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+from sqlalchemy.ext.asyncio import (
+    create_async_engine,
+    AsyncSession,
+    async_sessionmaker,
+)
 from sqlalchemy.orm import declarative_base
 
 from .config import get_settings

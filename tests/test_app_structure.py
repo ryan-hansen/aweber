@@ -27,7 +27,10 @@ class TestApplicationConfiguration:
         assert settings.app_version == "1.0.0"
         assert settings.debug is False
         assert settings.database_url == "sqlite+aiosqlite:///./widgets.db"
-        assert settings.test_database_url == "sqlite+aiosqlite:///./test_widgets.db"
+        assert (
+            settings.test_database_url
+            == "sqlite+aiosqlite:///./test_widgets.db"
+        )
         assert settings.api_v1_prefix == "/api/v1"
         assert settings.docs_url == "/docs"
         assert settings.redoc_url == "/redoc"
@@ -164,7 +167,8 @@ class TestErrorHandling:
 @pytest.mark.asyncio
 async def test_lifespan_events() -> None:
     """Test application lifespan events."""
-    # This test verifies that the lifespan context manager is properly configured
+    # This test verifies that the lifespan context manager is properly
+    # configured
     # The actual startup/shutdown behavior is tested through the app instance
     test_app = create_app()
     assert test_app.router.lifespan_context is not None

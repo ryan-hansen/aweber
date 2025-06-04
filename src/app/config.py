@@ -11,8 +11,12 @@ class Settings(BaseSettings):
     """Application settings."""
 
     # Application settings
-    app_name: str = Field(default="Widget CRUD API", description="Application name")
-    app_version: str = Field(default="1.0.0", description="Application version")
+    app_name: str = Field(
+        default="Widget CRUD API", description="Application name"
+    )
+    app_version: str = Field(
+        default="1.0.0", description="Application version"
+    )
     debug: bool = Field(default=False, description="Debug mode")
 
     # Database settings
@@ -33,9 +37,13 @@ class Settings(BaseSettings):
 
     # API settings
     api_v1_prefix: str = Field(default="/api/v1", description="API v1 prefix")
-    docs_url: Optional[str] = Field(default="/docs", description="OpenAPI docs URL")
+    docs_url: Optional[str] = Field(
+        default="/docs", description="OpenAPI docs URL"
+    )
     redoc_url: Optional[str] = Field(default="/redoc", description="ReDoc URL")
-    openapi_url: str = Field(default="/openapi.json", description="OpenAPI schema URL")
+    openapi_url: str = Field(
+        default="/openapi.json", description="OpenAPI schema URL"
+    )
 
     model_config = SettingsConfigDict(
         env_file=".env",
