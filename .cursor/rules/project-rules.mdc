@@ -21,3 +21,5 @@ alwaysApply: true
   3. A task/subtask is not complete until all relevant tests are passing.
   4. Mark the related tasks and subtasks as complete.
   5. Commit the changes.
+  6. Merge feature branch back into main
+  7. Delete feature branch
