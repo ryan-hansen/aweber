@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from .config import get_settings
+from .routers import widgets_router
 
 
 @asynccontextmanager
@@ -80,6 +81,9 @@ def create_app() -> FastAPI:
             "version": settings.app_version,
             "docs": "/docs",
         }
+
+    # Include routers
+    app.include_router(widgets_router)
 
     return app
 
