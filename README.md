@@ -89,31 +89,29 @@ poetry run pytest tests/test_widget_model.py -v
 
 ## 🔧 Development Tools
 
-### Code Formatting
+### Automated Quality Checks
+All code quality tools run automatically on every commit via pre-commit hooks:
+
 ```bash
+# One-time setup
+pre-commit install
+
+# Manual formatting (if needed)
 poetry run black src/ tests/
-```
+poetry run isort src/ tests/
 
-### Linting
-```bash
+# Manual checks (if needed)
 poetry run flake8 src/ tests/
-```
-
-### Type Checking
-```bash
 poetry run mypy src/
-```
-
-### Security Analysis
-```bash
 poetry run bandit -r src/
 ```
 
-### Pre-commit Hooks
-All quality checks run automatically on commit:
-```bash
-pre-commit install  # One-time setup
-```
+The pre-commit hooks will automatically:
+- Sort imports (isort)
+- Format code (black)
+- Check style (flake8)
+- Analyze security (bandit)
+- Verify types (mypy)
 
 ## 📊 API Endpoints
 

@@ -10,9 +10,7 @@ authors = ["Widget Team <team@widgets.dev>"]
 readme = "README.md"
 packages = [{include = "app", from = "src"}]
 
-[tool.poetry.scripts]
-lint = "scripts.lint:main"
-format = "scripts.format:main"
+
 
 [tool.poetry.dependencies]
 python = "^3.12"
