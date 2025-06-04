@@ -1,0 +1,19 @@
+exclude_dirs:
+  - tests
+  - .venv
+  - aweberenv
+
+skips:
+  - B101  # Test for use of assert
+
+tests:
+  - B201  # Test for flask debug = True
+  - B301  # Test for pickle usage
+  - B401  # Test for shell injection
+  - B601  # Test for shell injection in subprocess
+  - B602  # Test for subprocess popen with shell equals true
+  - B603  # Test for subprocess without shell equals false
+  - B604  # Test for any function with shell equals true
+  - B605  # Test for start process with a shell
+  - B606  # Test for start process with no shell
+  - B607  # Test for start process with partial executable path
