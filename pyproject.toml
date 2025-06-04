@@ -1,3 +1,37 @@
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "widget-crud-api"
+version = "1.0.0"
+description = "A modern Widget CRUD REST API built with FastAPI"
+authors = ["Widget Team <team@widgets.dev>"]
+readme = "README.md"
+packages = [{include = "app", from = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.104.1"
+uvicorn = {extras = ["standard"], version = "^0.24.0"}
+sqlalchemy = "^2.0.23"
+alembic = "^1.13.1"
+aiosqlite = "^0.19.0"
+greenlet = "^3.0.2"
+pydantic = "^2.5.0"
+pydantic-settings = "^2.1.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.3"
+pytest-asyncio = "^0.21.1"
+coverage = "^7.3.2"
+httpx = "^0.25.2"
+flake8 = "^6.1.0"
+black = "^23.12.1"
+bandit = "^1.7.5"
+mypy = "^1.7.1"
+pre-commit = "^3.6.0"
+
 [tool.black]
 line-length = 79
 target-version = ['py312']
