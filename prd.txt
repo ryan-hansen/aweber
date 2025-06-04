@@ -1,0 +1,25 @@
+Task:
+
+Write a CRUD REST API using Python for a single resource type.
+
+The application must satisfy these requirements:
+
+    Written in Python 3.8 or later.
+    Endpoints to create, read, list, update, and delete objects called "Widgets"
+    Widget objects include the following properties (at least):
+        Name (utf8 string, limited to 64 chars)
+        Number of parts (integer)
+        Created date (date, automatically set)
+        Updated date (date, automatically set)
+    Widgets are persisted to and retrieved from a SQLite file database.
+    Include a README that describes how to setup and run the application.
+
+Ideas to make the project even better:
+
+    Include unit or functional test coverage
+    Include an OpenAPI spec
+    PEP8 compliance
+    Pass standard lint tests (ie: flake8 or similar)
+    Pass bandit security analysis
+    Use Python type annotations
+

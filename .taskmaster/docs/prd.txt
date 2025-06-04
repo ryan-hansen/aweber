@@ -1,0 +1,103 @@
+# Widget CRUD REST API - Product Requirements Document
+
+## Project Overview
+
+Build a production-ready CRUD REST API using Python for a single resource type called **Widget**. The API should follow modern web development best practices and be suitable for deployment.
+
+## Core Requirements
+
+### API Endpoints
+The application must provide the following REST endpoints:
+- **POST /widgets** - Create a new widget
+- **GET /widgets** - List all widgets (with pagination)
+- **GET /widgets/{id}** - Retrieve a specific widget by ID
+- **PUT /widgets/{id}** - Update a widget by ID
+- **DELETE /widgets/{id}** - Delete a widget by ID
+
+### Data Model
+Widget objects must include the following properties:
+- **name** (string): UTF-8 string, limited to 64 characters, required
+- **number_of_parts** (integer): Positive integer, required
+- **created_at** (datetime): Automatically set on creation, ISO 8601 format
+- **updated_at** (datetime): Automatically updated on modification, ISO 8601 format
+- **id** (integer): Auto-generated primary key
+
+### Data Persistence
+- Use **SQLite** file database for data storage
+- Implement proper database migrations
+- Include appropriate database indexes for performance
+
+## Technical Requirements
+
+### Framework & Technology Stack
+- **Python 3.12** (using virtual environment: `aweberenv`)
+- **FastAPI** framework
+- **SQLAlchemy** for ORM and database operations
+- **Pydantic** for data validation and serialization
+- **Alembic** for database migrations
+
+### Code Quality & Standards
+- **PEP8 compliance** - all code must follow Python style guidelines
+- **Type annotations** - use Python type hints throughout the codebase
+- **Linting** - code must pass flake8 static analysis
+- **Security** - code must pass bandit security analysis
+- **Documentation** - automatic OpenAPI/Swagger documentation via FastAPI
+
+### Testing Requirements
+- **Unit tests** - comprehensive test coverage for all business logic
+- **Integration tests** - test API endpoints end-to-end
+- **Test database** - use separate SQLite database for testing
+- **Test coverage** - minimum 80% code coverage
+
+### API Standards
+- **RESTful design** - follow REST conventions
+- **JSON responses** - all responses in JSON format
+- **HTTP status codes** - proper use of 200, 201, 400, 404, 500, etc.
+- **Error handling** - consistent error response format
+- **Request validation** - validate all input data
+- **Response schemas** - well-defined response models
+
+### Development Workflow
+- **Virtual environment** - activate `aweberenv` before running any Python commands
+- **Git workflow** - feature branches for each development task
+- **Conventional commits** - clear, descriptive commit messages
+- **Code reviews** - all changes require review before merge
+
+## Deliverables
+
+### Documentation
+- **README.md** - comprehensive setup and usage instructions (including virtual environment activation)
+- **API documentation** - automatically generated OpenAPI spec
+- **Development guide** - local development setup instructions with `aweberenv` virtual environment
+
+### Deployment
+- **Requirements.txt** - all Python dependencies with versions
+- **Docker support** - Dockerfile for containerization (optional enhancement)
+- **Environment configuration** - configurable database path and settings
+
+## Success Criteria
+
+1. All CRUD operations work correctly via REST API
+2. Data persists correctly in SQLite database
+3. All tests pass (unit and integration)
+4. Code passes all quality checks (flake8, bandit, type checking)
+5. API documentation is complete and accurate
+6. Application can be easily set up and run by following README instructions
+
+## Out of Scope (For Initial Version)
+
+- User authentication/authorization
+- Advanced querying/filtering
+- Caching mechanisms
+- Rate limiting
+- Multiple database support
+- Web UI frontend
+
+## Future Enhancements (Post-MVP)
+
+- Pagination for widget listing
+- Search and filtering capabilities
+- Audit logging
+- API versioning
+- Performance monitoring
+
