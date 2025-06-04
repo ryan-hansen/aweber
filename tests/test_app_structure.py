@@ -26,7 +26,8 @@ class TestApplicationConfiguration:
         assert settings.app_name == "Widget CRUD API"
         assert settings.app_version == "1.0.0"
         assert settings.debug is False
-        assert settings.database_url == "sqlite:///./widgets.db"
+        assert settings.database_url == "sqlite+aiosqlite:///./widgets.db"
+        assert settings.test_database_url == "sqlite+aiosqlite:///./test_widgets.db"
         assert settings.api_v1_prefix == "/api/v1"
         assert settings.docs_url == "/docs"
         assert settings.redoc_url == "/redoc"
