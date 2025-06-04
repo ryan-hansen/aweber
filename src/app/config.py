@@ -17,7 +17,12 @@ class Settings(BaseSettings):
 
     # Database settings
     database_url: str = Field(
-        default="sqlite:///./widgets.db", description="Database connection URL"
+        default="sqlite+aiosqlite:///./widgets.db",
+        description="Database connection URL",
+    )
+    test_database_url: str = Field(
+        default="sqlite+aiosqlite:///./test_widgets.db",
+        description="Test database connection URL",
     )
 
     # CORS settings

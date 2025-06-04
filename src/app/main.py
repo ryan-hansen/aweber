@@ -13,8 +13,12 @@ from .config import get_settings
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan context manager."""
+    from .database import create_tables
+
     # Startup
     print("Starting up Widget CRUD API...")
+    await create_tables()
+    print("Database tables created/verified")
     yield
     # Shutdown
     print("Shutting down Widget CRUD API...")
