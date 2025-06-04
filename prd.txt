@@ -22,4 +22,3 @@ Ideas to make the project even better:
     Pass standard lint tests (ie: flake8 or similar)
     Pass bandit security analysis
     Use Python type annotations
-

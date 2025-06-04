@@ -1,6 +1,6 @@
 ---
-description: 
-globs: 
+description:
+globs:
 alwaysApply: true
 ---
 
@@ -33,7 +33,7 @@ alwaysApply: true
         │   └── auth.py           # Authentication logic
         ├── mock/                 # Mock data and testing utilities
         └── main.py               # Application entry point
-  
+
   Key Principles
   - Write concise, technical responses with accurate Python examples.
   - Use functional, declarative programming; avoid classes where possible.
@@ -44,7 +44,7 @@ alwaysApply: true
   - Use the Receive an Object, Return an Object (RORO) pattern.
   - Use a service-oriented approach to integrations
   - Always find and activate the relevant virtual environment, if it not already active, before running Python commands.  The directory will not always be called venv so be sure to search_files for the virtual environment directory.
-  
+
   Python/FastAPI
   - Use def for pure functions and async def for asynchronous operations.
   - Use type hints for all function signatures. Prefer Pydantic models over raw dictionaries for input validation.
@@ -61,7 +61,7 @@ alwaysApply: true
   - Migrations should be limited to exactly what they need to do, nothing more.
   - Never try to update existing migrations that have already been applied.
   - Alembic migrations always go in the alembic folder
-  
+
   Error Handling and Validation
   - Prioritize error handling and edge cases:
     - Handle errors and edge cases at the beginning of functions.
@@ -71,13 +71,13 @@ alwaysApply: true
     - Use guard clauses to handle preconditions and invalid states early.
     - Implement proper error logging and user-friendly error messages.
     - Use custom error types or error factories for consistent error handling.
-  
+
   Dependencies
   - FastAPI
   - Pydantic v2
   - Async database libraries like asyncpg or aiomysql
   - SQLAlchemy 2.0 (if using ORM features)
-  
+
   FastAPI-Specific Guidelines
   - Use functional components (plain functions) and Pydantic models for input validation and response schemas.
   - Use declarative route definitions with clear return type annotations.
@@ -88,13 +88,13 @@ alwaysApply: true
   - Use HTTPException for expected errors and model them as specific HTTP responses.
   - Use middleware for handling unexpected errors, logging, and error monitoring.
   - Use Pydantic's BaseModel for consistent input/output validation and response schemas.
-  
+
   Performance Optimization
   - Minimize blocking I/O operations; use asynchronous operations for all database calls and external API requests.
   - Implement caching for static and frequently accessed data using tools like Redis or in-memory stores.
   - Optimize data serialization and deserialization with Pydantic.
   - Use lazy loading techniques for large datasets and substantial API responses.
-  
+
   Key Conventions
   1. Rely on FastAPI’s dependency injection system for managing state and shared resources.
   2. Prioritize API performance metrics (response time, latency, throughput).
@@ -102,6 +102,5 @@ alwaysApply: true
      - Favor asynchronous and non-blocking flows.
      - Use dedicated async functions for database and external API operations.
      - Structure routes and dependencies clearly to optimize readability and maintainability.
-  
+
   Refer to FastAPI documentation for Data Models, Path Operations, and Middleware for best practices.
-  

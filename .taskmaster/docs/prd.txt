@@ -100,4 +100,3 @@ Widget objects must include the following properties:
 - Audit logging
 - API versioning
 - Performance monitoring
-
