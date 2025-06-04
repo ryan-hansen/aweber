@@ -5,18 +5,19 @@ This module tests all Widget schemas for proper validation, serialization,
 and error handling.
 """
 
-import pytest
 from datetime import datetime
+
+import pytest
 from pydantic import ValidationError
 
+from src.app.models.widget import Widget
 from src.app.schemas.widget import (
     WidgetBase,
     WidgetCreate,
-    WidgetUpdate,
-    WidgetResponse,
     WidgetListResponse,
+    WidgetResponse,
+    WidgetUpdate,
 )
-from src.app.models.widget import Widget
 
 
 class TestWidgetBase:

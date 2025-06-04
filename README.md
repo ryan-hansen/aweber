@@ -46,13 +46,29 @@ alembic upgrade head
 
 ### Development Server
 ```bash
-poetry run uvicorn src.app.main:app --reload --host 0.0.0.0 --port 8000
+# Default (secure localhost binding)
+poetry run python src/main.py
+
+# Or with uvicorn directly
+poetry run uvicorn src.app.main:app --reload
+
+# For network access (Docker, external devices)
+HOST=0.0.0.0 PORT=8000 poetry run python src/main.py
 ```
 
 The API will be available at:
 - **Application**: http://localhost:8000
 - **Documentation**: http://localhost:8000/docs
 - **ReDoc**: http://localhost:8000/redoc
+
+### Environment Variables
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `HOST` | `127.0.0.1` | Server host binding (use `0.0.0.0` for network access) |
+| `PORT` | `8000` | Server port number |
+| `DATABASE_URL` | `sqlite:///./widgets.db` | Database connection URL |
+| `DEBUG` | `true` | Enable debug mode |
+| `LOG_LEVEL` | `info` | Logging level |
 
 ## 🧪 Testing
 

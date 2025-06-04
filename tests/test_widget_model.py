@@ -1,17 +1,18 @@
 """Test cases for Widget SQLAlchemy model."""
 
+from datetime import datetime
+
 import pytest
 import pytest_asyncio
-from datetime import datetime
 from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
 
-from src.app.models.widget import Widget
 from src.app.database import (
+    TestAsyncSessionLocal,
     create_test_tables,
     drop_test_tables,
-    TestAsyncSessionLocal,
 )
+from src.app.models.widget import Widget
 
 
 class TestWidgetModel:

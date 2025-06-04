@@ -10,21 +10,21 @@ from sqlalchemy.ext.asyncio import AsyncSession
 # Add src to Python path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
+from app.config import get_settings  # noqa: E402
 from app.database import (  # noqa: E402
-    engine,
-    test_engine,
     AsyncSessionLocal,
-    TestAsyncSessionLocal,
     Base,
-    get_db,
-    get_test_db,
+    TestAsyncSessionLocal,
     create_tables,
     create_test_tables,
     drop_tables,
     drop_test_tables,
+    engine,
+    get_db,
+    get_test_db,
     is_testing,
+    test_engine,
 )
-from app.config import get_settings  # noqa: E402
 
 
 class TestDatabaseConfiguration:

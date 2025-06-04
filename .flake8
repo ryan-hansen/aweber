@@ -1,0 +1,27 @@
+[flake8]
+max-line-length = 79
+max-complexity = 10
+select = E,W,F,C
+ignore =
+    # E203: whitespace before ':' (conflicts with black)
+    E203,
+    # W503: line break before binary operator (conflicts with black)
+    W503,
+    # E501: line too long (black handles this)
+    E501
+exclude =
+    .git,
+    __pycache__,
+    .venv,
+    aweberenv,
+    build,
+    dist,
+    *.egg-info,
+    .pytest_cache,
+    .mypy_cache,
+    migrations
+per-file-ignores =
+    # Tests can have longer lines for readability
+    tests/*:E501
+    # __init__.py files can have unused imports
+    __init__.py:F401
