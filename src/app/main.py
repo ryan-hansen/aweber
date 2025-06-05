@@ -34,9 +34,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     await create_tables()
     logger.info("Database tables created/verified")
     logger.info("Application startup complete")
-    
+
     yield
-    
+
     # Shutdown
     logger.info("Shutting down Widget CRUD API...")
     logger.info("Application shutdown complete")
@@ -59,18 +59,19 @@ def create_app() -> FastAPI:
     # Add middleware in order (first added = outermost layer)
     # Security headers should be outermost
     app.add_middleware(SecurityHeadersMiddleware)
-    
+
     # Error tracking middleware
     app.add_middleware(ErrorTrackingMiddleware)
-    
+
     # Request logging middleware
     app.add_middleware(RequestLoggingMiddleware)
-    
+
     # Request validation middleware
     app.add_middleware(RequestValidationMiddleware)
 
     # Add CORS middleware (this should be after our custom middleware)
     from fastapi.middleware.cors import CORSMiddleware
+
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,

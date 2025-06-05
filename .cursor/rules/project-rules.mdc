@@ -1,6 +1,6 @@
 ---
-description: 
-globs: 
+description:
+globs:
 alwaysApply: true
 ---
 # General Rules
@@ -14,6 +14,11 @@ alwaysApply: true
 - The code should pass bandit security analysis.
 - Use Python type annotations.
 - There is a Python 3.12 virtual environment in aweberenv.  Activate that before running any Python commands.
+- When reviewing the project for the first time, always check the following:
+  - Project structure and source code
+  - Project configuration for tests, linters, formatters, pre-commit hooks, etc.
+  - Current TaskMaster task status
+  - git status
 
 - For each TaskMaster task or subtask, do the following:
   1. First create an appropriate feature branch.

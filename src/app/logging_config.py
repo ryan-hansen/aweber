@@ -8,7 +8,7 @@ formatters, handlers, and log levels for different environments.
 import logging
 import logging.config
 import sys
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from .config import get_settings
 
@@ -149,7 +149,7 @@ def get_logger(name: str) -> logging.Logger:
 
 
 def log_request_info(
-    request_id: str, method: str, path: str, client_ip: str = None
+    request_id: str, method: str, path: str, client_ip: Optional[str] = None
 ) -> None:
     """
     Log request information with structured data.
@@ -174,7 +174,9 @@ def log_request_info(
     logger.info(f"Request: {method} {path}", extra=extra_data)
 
 
-def log_response_info(request_id: str, status_code: int, duration_ms: float) -> None:
+def log_response_info(
+    request_id: str, status_code: int, duration_ms: float
+) -> None:
     """
     Log response information with structured data.
 
@@ -196,7 +198,9 @@ def log_response_info(request_id: str, status_code: int, duration_ms: float) -> 
 
 
 def log_error(
-    error: Exception, request_id: str = None, context: Dict[str, Any] = None
+    error: Exception,
+    request_id: Optional[str] = None,
+    context: Optional[Dict[str, Any]] = None,
 ) -> None:
     """
     Log error information with structured data.
@@ -227,7 +231,7 @@ def log_error(
 
 
 def log_business_event(
-    event_type: str, details: Dict[str, Any], request_id: str = None
+    event_type: str, details: Dict[str, Any], request_id: Optional[str] = None
 ) -> None:
     """
     Log business events with structured data.
@@ -253,8 +257,8 @@ def log_business_event(
 def log_security_event(
     event_type: str,
     severity: str = "WARNING",
-    details: Dict[str, Any] = None,
-    request_id: str = None,
+    details: Optional[Dict[str, Any]] = None,
+    request_id: Optional[str] = None,
 ) -> None:
     """
     Log security events with structured data.
@@ -267,7 +271,7 @@ def log_security_event(
     """
     logger = get_logger("app.security")
 
-    extra_data = {
+    extra_data: Dict[str, Any] = {
         "event_type": event_type,
         "severity": severity,
     }

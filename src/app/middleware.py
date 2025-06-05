@@ -7,7 +7,7 @@ error tracking, and other cross-cutting concerns.
 
 import time
 import uuid
-from typing import Callable
+from typing import Callable, Optional
 
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -25,7 +25,9 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
     and tracks request duration for monitoring and debugging.
     """
 
-    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: Callable
+    ) -> Response:
         """
         Process request and response with logging.
 
@@ -124,7 +126,9 @@ class RequestValidationMiddleware(BaseHTTPMiddleware):
     not easily handled by Pydantic schemas.
     """
 
-    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: Callable
+    ) -> Response:
         """
         Validate request before processing.
 
@@ -149,7 +153,7 @@ class RequestValidationMiddleware(BaseHTTPMiddleware):
         # Continue processing
         return await call_next(request)
 
-    async def _validate_request(self, request: Request) -> dict:
+    async def _validate_request(self, request: Request) -> Optional[dict]:
         """
         Perform custom request validation.
 
@@ -186,8 +190,12 @@ class RequestValidationMiddleware(BaseHTTPMiddleware):
                 # Allow form data and other content types for specific
                 # endpoints
                 path = str(request.url.path)
-                if not any(allowed in path for allowed in ["/docs", "/openapi"]):
-                    if request.method != "DELETE":  # DELETE doesn't need content-type
+                if not any(
+                    allowed in path for allowed in ["/docs", "/openapi"]
+                ):
+                    if (
+                        request.method != "DELETE"
+                    ):  # DELETE doesn't need content-type
                         return {
                             "message": "Content-Type must be application/json",
                             "details": {
@@ -219,6 +227,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             "X-Frame-Options": "DENY",
             "X-XSS-Protection": "1; mode=block",
             "Referrer-Policy": "strict-origin-when-cross-origin",
+            "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
             "Content-Security-Policy": (
                 "default-src 'self'; "
                 "script-src 'self' 'unsafe-inline'; "
@@ -229,7 +238,9 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             ),
         }
 
-    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: Callable
+    ) -> Response:
         """
         Add security headers to response.
 
@@ -257,7 +268,9 @@ class ErrorTrackingMiddleware(BaseHTTPMiddleware):
     error tracking services like Sentry, Bugsnag, etc.
     """
 
-    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: Callable
+    ) -> Response:
         """
         Track errors and performance metrics.
 
@@ -284,7 +297,9 @@ class ErrorTrackingMiddleware(BaseHTTPMiddleware):
             # Re-raise the exception
             raise exc
 
-    async def _track_error_response(self, request: Request, response: Response) -> None:
+    async def _track_error_response(
+        self, request: Request, response: Response
+    ) -> None:
         """
         Track error responses for monitoring.
 

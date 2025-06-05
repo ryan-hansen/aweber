@@ -75,7 +75,10 @@ class TestWidgetCreateEndpoint:
 
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         data = response.json()
-        assert "detail" in data
+        assert data["error"] == "VALIDATION_ERROR"
+        assert "message" in data
+        assert "details" in data
+        assert "field_errors" in data["details"]
 
     def test_create_widget_validation_error_missing_name(self, client):
         """Test widget creation with missing name."""
@@ -273,8 +276,10 @@ class TestWidgetGetByIdEndpoint:
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
         data = response.json()
-        assert "detail" in data
-        assert "999" in data["detail"]
+        assert data["error"] == "WIDGET_NOT_FOUND"
+        assert "message" in data
+        assert "details" in data
+        assert "widget_id" in data["details"]
 
     def test_get_widget_by_id_invalid_id(self, client):
         """Test widget retrieval with invalid ID format."""
@@ -327,8 +332,10 @@ class TestWidgetUpdateEndpoint:
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
         data = response.json()
-        assert "detail" in data
-        assert "999" in data["detail"]
+        assert data["error"] == "WIDGET_NOT_FOUND"
+        assert "message" in data
+        assert "details" in data
+        assert "widget_id" in data["details"]
 
     def test_update_widget_validation_error(self, client):
         """Test widget update with invalid data."""
@@ -385,8 +392,10 @@ class TestWidgetDeleteEndpoint:
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
         data = response.json()
-        assert "detail" in data
-        assert "999" in data["detail"]
+        assert data["error"] == "WIDGET_NOT_FOUND"
+        assert "message" in data
+        assert "details" in data
+        assert "widget_id" in data["details"]
 
     def test_delete_widget_invalid_id(self, client):
         """Test deleting widget with invalid ID format."""

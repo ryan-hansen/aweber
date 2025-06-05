@@ -161,7 +161,10 @@ class TestErrorHandling:
 
         assert response.status_code == 404
         data = response.json()
-        assert "detail" in data
+        assert data["error"] == "RESOURCE_NOT_FOUND"
+        assert "message" in data
+        assert "request_id" in data
+        assert "timestamp" in data
 
 
 @pytest.mark.asyncio

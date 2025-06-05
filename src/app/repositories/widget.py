@@ -5,17 +5,13 @@ This module implements the repository pattern for Widget CRUD operations
 with proper error handling, pagination, and async SQLAlchemy 2.0 support.
 """
 
-from typing import Sequence
+from typing import Optional, Sequence
 
 from sqlalchemy import delete, func, select, update
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..exceptions import (
-    DatabaseException,
-    WidgetDuplicateException,
-    WidgetNotFoundException,
-)
+from ..exceptions import DatabaseException, WidgetNotFoundException
 from ..logging_config import get_logger
 from ..models.widget import Widget
 from ..schemas.widget import WidgetCreate, WidgetUpdate
@@ -27,7 +23,7 @@ logger = get_logger(__name__)
 class WidgetRepositoryError(DatabaseException):
     """Base exception for widget repository operations."""
 
-    def __init__(self, message: str, operation: str = None):
+    def __init__(self, message: str, operation: Optional[str] = None):
         super().__init__(message=message, operation=operation)
 
 
@@ -146,9 +142,7 @@ class WidgetRepository:
             widget = result.scalar_one_or_none()
 
             if widget is None:
-                raise WidgetNotFoundError(
-                    f"Widget with ID {widget_id} not found"
-                )
+                raise WidgetNotFoundError(widget_id)
 
             logger.debug(f"Retrieved widget with ID {widget_id}")
             return widget
@@ -337,9 +331,7 @@ class WidgetRepository:
             result = await self.session.execute(stmt)
 
             if result.rowcount == 0:
-                raise WidgetNotFoundError(
-                    f"Widget with ID {widget_id} not found"
-                )
+                raise WidgetNotFoundError(widget_id)
 
             await self.session.commit()
             logger.info(f"Deleted widget with ID {widget_id}")

@@ -8,7 +8,7 @@ logging and error tracking.
 
 import time
 import uuid
-from typing import Union
+from typing import Optional
 
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
@@ -29,7 +29,7 @@ def create_error_response(
     error_code: str,
     message: str,
     status_code: int,
-    details: dict = None,
+    details: Optional[dict] = None,
 ) -> JSONResponse:
     """
     Create a standardized error response.
@@ -55,7 +55,7 @@ def create_error_response(
         response_data["details"] = details
 
     # Include stack trace in debug mode
-    if settings.debug and "stack_trace" in (details or {}):
+    if settings.debug and details and "stack_trace" in details:
         response_data["stack_trace"] = details["stack_trace"]
 
     return JSONResponse(
@@ -117,7 +117,9 @@ async def validation_exception_handler(
     # Extract field errors from Pydantic validation error
     field_errors = {}
     for error in exc.errors():
-        field_path = ".".join(str(loc) for loc in error["loc"][1:])  # Skip 'body'
+        field_path = ".".join(
+            str(loc) for loc in error["loc"][1:]
+        )  # Skip 'body'
         field_errors[field_path] = error["msg"]
 
     # Log the validation error
@@ -233,7 +235,9 @@ async def http_exception_handler(
     )
 
 
-async def generic_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+async def generic_exception_handler(
+    request: Request, exc: Exception
+) -> JSONResponse:
     """
     Handler for unhandled exceptions.
 
@@ -294,8 +298,12 @@ def register_exception_handlers(app: FastAPI) -> None:
     app.add_exception_handler(BaseAPIException, base_api_exception_handler)
 
     # Validation errors
-    app.add_exception_handler(RequestValidationError, validation_exception_handler)
-    app.add_exception_handler(ValidationError, pydantic_validation_exception_handler)
+    app.add_exception_handler(
+        RequestValidationError, validation_exception_handler
+    )
+    app.add_exception_handler(
+        ValidationError, pydantic_validation_exception_handler
+    )
 
     # HTTP exceptions
     app.add_exception_handler(StarletteHTTPException, http_exception_handler)

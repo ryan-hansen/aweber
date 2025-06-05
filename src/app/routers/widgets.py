@@ -12,7 +12,6 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..database import get_db
-from ..exceptions import DatabaseException, WidgetNotFoundException
 from ..logging_config import get_logger, log_business_event
 from ..repositories.widget import WidgetRepository
 from ..schemas.widget import (
@@ -56,7 +55,9 @@ logger = get_logger(__name__)
                     "example": {
                         "error": "VALIDATION_ERROR",
                         "message": "Validation failed",
-                        "details": {"field_errors": {"name": "Field required"}},
+                        "details": {
+                            "field_errors": {"name": "Field required"}
+                        },
                     }
                 }
             },
@@ -81,10 +82,10 @@ async def create_widget(
 ) -> WidgetResponse:
     """Create a new widget."""
     logger.info(f"Creating widget: {widget_data.name}")
-    
+
     widget_repo = WidgetRepository(db)
     widget = await widget_repo.create(widget_data)
-    
+
     # Log business event
     log_business_event(
         event_type="widget_created",
@@ -92,9 +93,9 @@ async def create_widget(
             "widget_id": widget.id,
             "widget_name": widget.name,
             "number_of_parts": widget.number_of_parts,
-        }
+        },
     )
-    
+
     logger.info(f"Widget created successfully: ID {widget.id}")
     return WidgetResponse.model_validate(widget)
 
@@ -179,7 +180,7 @@ async def get_widgets(
         f"Retrieving widgets: page={page}, size={size}, "
         f"order_by={order_by}, order_desc={order_desc}"
     )
-    
+
     widget_repo = WidgetRepository(db)
     result = await widget_repo.get_all(
         page=page,
@@ -192,8 +193,10 @@ async def get_widgets(
         WidgetResponse.model_validate(widget) for widget in result.items
     ]
 
-    logger.info(f"Retrieved {len(widgets)} widgets (page {page} of {result.pages})")
-    
+    logger.info(
+        f"Retrieved {len(widgets)} widgets (page {page} of {result.pages})"
+    )
+
     return WidgetListResponse(
         widgets=widgets,
         total=result.total,
@@ -248,10 +251,10 @@ async def get_widget(
 ) -> WidgetResponse:
     """Get a widget by ID."""
     logger.debug(f"Retrieving widget: ID {widget_id}")
-    
+
     widget_repo = WidgetRepository(db)
     widget = await widget_repo.get_by_id(widget_id)
-    
+
     logger.info(f"Widget retrieved successfully: ID {widget_id}")
     return WidgetResponse.model_validate(widget)
 
@@ -313,10 +316,10 @@ async def update_widget(
 ) -> WidgetResponse:
     """Update a widget."""
     logger.info(f"Updating widget: ID {widget_id}")
-    
+
     widget_repo = WidgetRepository(db)
     widget = await widget_repo.update(widget_id, widget_data)
-    
+
     # Log business event
     log_business_event(
         event_type="widget_updated",
@@ -325,9 +328,9 @@ async def update_widget(
             "widget_name": widget.name,
             "number_of_parts": widget.number_of_parts,
             "updated_fields": widget_data.model_dump(exclude_unset=True),
-        }
+        },
     )
-    
+
     logger.info(f"Widget updated successfully: ID {widget_id}")
     return WidgetResponse.model_validate(widget)
 
@@ -365,15 +368,14 @@ async def delete_widget(
 ) -> None:
     """Delete a widget."""
     logger.info(f"Deleting widget: ID {widget_id}")
-    
+
     widget_repo = WidgetRepository(db)
     await widget_repo.delete(widget_id)
-    
+
     # Log business event
     log_business_event(
-        event_type="widget_deleted",
-        details={"widget_id": widget_id}
+        event_type="widget_deleted", details={"widget_id": widget_id}
     )
-    
+
     logger.info(f"Widget deleted successfully: ID {widget_id}")
     # Return None for 204 No Content status
