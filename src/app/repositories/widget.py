@@ -5,47 +5,58 @@ This module implements the repository pattern for Widget CRUD operations
 with proper error handling, pagination, and async SQLAlchemy 2.0 support.
 """
 
-import logging
 from typing import Sequence
 
 from sqlalchemy import delete, func, select, update
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from ..exceptions import (
+    DatabaseException,
+    WidgetDuplicateException,
+    WidgetNotFoundException,
+)
+from ..logging_config import get_logger
 from ..models.widget import Widget
 from ..schemas.widget import WidgetCreate, WidgetUpdate
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
-class WidgetRepositoryError(Exception):
+# Legacy exceptions for backward compatibility
+class WidgetRepositoryError(DatabaseException):
     """Base exception for widget repository operations."""
 
-    pass
+    def __init__(self, message: str, operation: str = None):
+        super().__init__(message=message, operation=operation)
 
 
-class WidgetNotFoundError(WidgetRepositoryError):
+class WidgetNotFoundError(WidgetNotFoundException):
     """Raised when a widget is not found."""
 
-    pass
+    def __init__(self, widget_id: int):
+        super().__init__(widget_id=widget_id)
 
 
-class WidgetCreateError(WidgetRepositoryError):
+class WidgetCreateError(DatabaseException):
     """Raised when widget creation fails."""
 
-    pass
+    def __init__(self, message: str):
+        super().__init__(message=message, operation="create")
 
 
-class WidgetUpdateError(WidgetRepositoryError):
+class WidgetUpdateError(DatabaseException):
     """Raised when widget update fails."""
 
-    pass
+    def __init__(self, message: str):
+        super().__init__(message=message, operation="update")
 
 
-class WidgetDeleteError(WidgetRepositoryError):
+class WidgetDeleteError(DatabaseException):
     """Raised when widget deletion fails."""
 
-    pass
+    def __init__(self, message: str):
+        super().__init__(message=message, operation="delete")
 
 
 class PaginationResult:

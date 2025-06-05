@@ -1,6 +1,6 @@
 ---
-description:
-globs:
+description: 
+globs: 
 alwaysApply: true
 ---
 # General Rules
@@ -20,6 +20,6 @@ alwaysApply: true
   2. Create a suite of automated tests (unit or functional) for that task.
   3. A task/subtask is not complete until all relevant tests are passing.
   4. Mark the related tasks and subtasks as complete.
-  5. Commit the changes.
+  5. Commit the changes.  DO NOT COMMIT UNTIL ALL TESTS PASS.
   6. Merge feature branch back into main
   7. Delete feature branch

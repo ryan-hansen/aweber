@@ -8,15 +8,13 @@ OpenAPI documentation.
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..database import get_db
-from ..repositories.widget import (
-    WidgetNotFoundError,
-    WidgetRepository,
-    WidgetRepositoryError,
-)
+from ..exceptions import DatabaseException, WidgetNotFoundException
+from ..logging_config import get_logger, log_business_event
+from ..repositories.widget import WidgetRepository
 from ..schemas.widget import (
     WidgetCreate,
     WidgetListResponse,
@@ -25,6 +23,7 @@ from ..schemas.widget import (
 )
 
 router = APIRouter(prefix="/widgets", tags=["Widgets"])
+logger = get_logger(__name__)
 
 
 @router.post(
@@ -54,7 +53,11 @@ router = APIRouter(prefix="/widgets", tags=["Widgets"])
             "description": "Invalid input data",
             "content": {
                 "application/json": {
-                    "example": {"detail": "Validation error in request data"}
+                    "example": {
+                        "error": "VALIDATION_ERROR",
+                        "message": "Validation failed",
+                        "details": {"field_errors": {"name": "Field required"}},
+                    }
                 }
             },
         },
@@ -62,7 +65,11 @@ router = APIRouter(prefix="/widgets", tags=["Widgets"])
             "description": "Internal server error",
             "content": {
                 "application/json": {
-                    "example": {"detail": "Database error occurred"}
+                    "example": {
+                        "error": "DATABASE_ERROR",
+                        "message": "Database operation failed",
+                        "details": {"operation": "create"},
+                    }
                 }
             },
         },
@@ -73,20 +80,23 @@ async def create_widget(
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> WidgetResponse:
     """Create a new widget."""
-    try:
-        widget_repo = WidgetRepository(db)
-        widget = await widget_repo.create(widget_data)
-        return WidgetResponse.model_validate(widget)
-    except WidgetRepositoryError as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Database error: {str(e)}",
-        ) from e
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Unexpected error: {str(e)}",
-        ) from e
+    logger.info(f"Creating widget: {widget_data.name}")
+    
+    widget_repo = WidgetRepository(db)
+    widget = await widget_repo.create(widget_data)
+    
+    # Log business event
+    log_business_event(
+        event_type="widget_created",
+        details={
+            "widget_id": widget.id,
+            "widget_name": widget.name,
+            "number_of_parts": widget.number_of_parts,
+        }
+    )
+    
+    logger.info(f"Widget created successfully: ID {widget.id}")
+    return WidgetResponse.model_validate(widget)
 
 
 @router.get(
@@ -165,36 +175,32 @@ async def get_widgets(
     ] = False,
 ) -> WidgetListResponse:
     """Get all widgets with pagination and ordering."""
-    try:
-        widget_repo = WidgetRepository(db)
-        result = await widget_repo.get_all(
-            page=page,
-            size=size,
-            order_by=order_by,
-            order_desc=order_desc,
-        )
+    logger.debug(
+        f"Retrieving widgets: page={page}, size={size}, "
+        f"order_by={order_by}, order_desc={order_desc}"
+    )
+    
+    widget_repo = WidgetRepository(db)
+    result = await widget_repo.get_all(
+        page=page,
+        size=size,
+        order_by=order_by,
+        order_desc=order_desc,
+    )
 
-        widgets = [
-            WidgetResponse.model_validate(widget) for widget in result.items
-        ]
+    widgets = [
+        WidgetResponse.model_validate(widget) for widget in result.items
+    ]
 
-        return WidgetListResponse(
-            widgets=widgets,
-            total=result.total,
-            page=result.page,
-            size=result.size,
-            pages=result.pages,
-        )
-    except WidgetRepositoryError as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Database error: {str(e)}",
-        ) from e
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Unexpected error: {str(e)}",
-        ) from e
+    logger.info(f"Retrieved {len(widgets)} widgets (page {page} of {result.pages})")
+    
+    return WidgetListResponse(
+        widgets=widgets,
+        total=result.total,
+        page=result.page,
+        size=result.size,
+        pages=result.pages,
+    )
 
 
 @router.get(
@@ -241,25 +247,13 @@ async def get_widget(
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> WidgetResponse:
     """Get a widget by ID."""
-    try:
-        widget_repo = WidgetRepository(db)
-        widget = await widget_repo.get_by_id(widget_id)
-        return WidgetResponse.model_validate(widget)
-    except WidgetNotFoundError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e),
-        ) from e
-    except WidgetRepositoryError as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Database error: {str(e)}",
-        ) from e
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Unexpected error: {str(e)}",
-        ) from e
+    logger.debug(f"Retrieving widget: ID {widget_id}")
+    
+    widget_repo = WidgetRepository(db)
+    widget = await widget_repo.get_by_id(widget_id)
+    
+    logger.info(f"Widget retrieved successfully: ID {widget_id}")
+    return WidgetResponse.model_validate(widget)
 
 
 @router.put(
@@ -318,25 +312,24 @@ async def update_widget(
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> WidgetResponse:
     """Update a widget."""
-    try:
-        widget_repo = WidgetRepository(db)
-        widget = await widget_repo.update(widget_id, widget_data)
-        return WidgetResponse.model_validate(widget)
-    except WidgetNotFoundError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e),
-        ) from e
-    except WidgetRepositoryError as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Database error: {str(e)}",
-        ) from e
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Unexpected error: {str(e)}",
-        ) from e
+    logger.info(f"Updating widget: ID {widget_id}")
+    
+    widget_repo = WidgetRepository(db)
+    widget = await widget_repo.update(widget_id, widget_data)
+    
+    # Log business event
+    log_business_event(
+        event_type="widget_updated",
+        details={
+            "widget_id": widget.id,
+            "widget_name": widget.name,
+            "number_of_parts": widget.number_of_parts,
+            "updated_fields": widget_data.model_dump(exclude_unset=True),
+        }
+    )
+    
+    logger.info(f"Widget updated successfully: ID {widget_id}")
+    return WidgetResponse.model_validate(widget)
 
 
 @router.delete(
@@ -371,22 +364,16 @@ async def delete_widget(
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> None:
     """Delete a widget."""
-    try:
-        widget_repo = WidgetRepository(db)
-        await widget_repo.delete(widget_id)
-        # Return None for 204 No Content status
-    except WidgetNotFoundError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e),
-        ) from e
-    except WidgetRepositoryError as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Database error: {str(e)}",
-        ) from e
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Unexpected error: {str(e)}",
-        ) from e
+    logger.info(f"Deleting widget: ID {widget_id}")
+    
+    widget_repo = WidgetRepository(db)
+    await widget_repo.delete(widget_id)
+    
+    # Log business event
+    log_business_event(
+        event_type="widget_deleted",
+        details={"widget_id": widget_id}
+    )
+    
+    logger.info(f"Widget deleted successfully: ID {widget_id}")
+    # Return None for 204 No Content status
