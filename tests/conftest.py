@@ -1,0 +1,82 @@
+"""
+Pytest configuration and shared fixtures for the test suite.
+
+This module configures the test environment and provides shared fixtures
+for database setup, test client, and common test utilities.
+"""
+
+import sys
+from pathlib import Path
+
+import pytest
+from fastapi.testclient import TestClient
+
+# Add the project root to Python path to enable imports from src
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
+# noqa: E402 - imports below must come after sys.path modification
+from src.app.database import (  # noqa: E402
+    create_test_tables,
+    drop_test_tables,
+    get_db,
+    get_test_db,
+)
+from src.app.main import create_app  # noqa: E402
+
+
+@pytest.fixture(scope="session")
+def event_loop():
+    """Create an instance of the default event loop for the test session."""
+    import asyncio
+
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+    yield loop
+    loop.close()
+
+
+@pytest.fixture
+def test_app():
+    """Create test FastAPI application with test database override."""
+    app = create_app()
+    # Override the database dependency to use test database
+    app.dependency_overrides[get_db] = get_test_db
+    return app
+
+
+@pytest.fixture
+def client(test_app):
+    """Create test client for FastAPI application."""
+    return TestClient(test_app)
+
+
+@pytest.fixture(autouse=True, scope="function")
+async def setup_test_db():
+    """Set up clean test database for each test function."""
+    # Clean up before each test
+    await drop_test_tables()
+    await create_test_tables()
+    yield
+    # Clean up after each test
+    await drop_test_tables()
+
+
+@pytest.fixture
+def sample_widget_data():
+    """Provide sample widget data for testing."""
+    return {
+        "name": "Test Widget",
+        "number_of_parts": 10,
+    }
+
+
+@pytest.fixture
+def multiple_widget_data():
+    """Provide multiple widget data sets for testing."""
+    return [
+        {"name": "Widget A", "number_of_parts": 5},
+        {"name": "Widget B", "number_of_parts": 10},
+        {"name": "Widget C", "number_of_parts": 15},
+        {"name": "Widget D", "number_of_parts": 20},
+        {"name": "Widget E", "number_of_parts": 25},
+    ]
