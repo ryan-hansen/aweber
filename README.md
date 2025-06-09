@@ -17,7 +17,7 @@ A modern, production-ready CRUD REST API built with Python 3.12 and FastAPI for 
 ## 📋 Requirements
 
 - Python 3.12+
-- Virtual environment (aweberenv)
+- Poetry (for dependency management)
 
 ## 🛠️ Installation
 
@@ -27,40 +27,22 @@ git clone <repository-url>
 cd aweber
 ```
 
-### 2. Set up the aweberenv virtual environment
+### 2. Install dependencies with Poetry
 ```bash
-# Create virtual environment
-python3.12 -m venv aweberenv
-
-# Activate virtual environment
-source aweberenv/bin/activate  # On macOS/Linux
-# or
-aweberenv\Scripts\activate     # On Windows
-
-# Upgrade pip
-pip install --upgrade pip
+poetry install
 ```
 
-### 3. Install dependencies
+### 3. Activate the virtual environment
 ```bash
-# Install all dependencies from pyproject.toml
-pip install -e .
-
-# Or install directly with pip
-pip install fastapi uvicorn sqlalchemy alembic aiosqlite pydantic pydantic-settings
+poetry shell
 ```
 
-### 4. Install development dependencies (for development)
-```bash
-pip install pytest pytest-asyncio coverage httpx flake8 black bandit mypy pre-commit isort pytest-cov
-```
-
-### 5. Set up pre-commit hooks (for development)
+### 4. Set up pre-commit hooks (for development)
 ```bash
 pre-commit install
 ```
 
-### 6. Run database migrations
+### 5. Run database migrations
 ```bash
 alembic upgrade head
 ```
@@ -69,14 +51,17 @@ alembic upgrade head
 
 ### Development Server
 ```bash
-# Activate virtual environment first
-source aweberenv/bin/activate
+# Activate virtual environment first (if not already activated)
+poetry shell
 
 # Default (secure localhost binding)
-python src/main.py
+poetry run python src/main.py
+
+# Or with uvicorn directly
+poetry run uvicorn src.app.main:app --reload
 
 # For network access (Docker, external devices)
-HOST=0.0.0.0 PORT=8000 python src/main.py
+HOST=0.0.0.0 PORT=8000 poetry run python src/main.py
 ```
 
 The API will be available at:
@@ -96,17 +81,17 @@ The API will be available at:
 ## 🧪 Testing
 
 ```bash
-# Activate virtual environment
-source aweberenv/bin/activate
+# Activate virtual environment (if not already activated)
+poetry shell
 
 # Run all tests
-pytest
+poetry run pytest
 
 # Run tests with coverage
-pytest --cov=src --cov-report=html
+poetry run pytest --cov=src --cov-report=html
 
 # Run specific test files
-pytest tests/test_widget_model.py -v
+poetry run pytest tests/test_widget_model.py -v
 
 # View coverage report
 open htmlcov/index.html  # On macOS
@@ -118,17 +103,17 @@ open htmlcov/index.html  # On macOS
 All code quality tools run automatically on every commit via pre-commit hooks:
 
 ```bash
-# One-time setup (after activating aweberenv)
+# One-time setup (after installing dependencies)
 pre-commit install
 
 # Manual formatting (if needed)
-black src/ tests/
-isort src/ tests/
+poetry run black src/ tests/
+poetry run isort src/ tests/
 
 # Manual checks (if needed)
-flake8 src/ tests/
-mypy src/
-bandit -r src/
+poetry run flake8 src/ tests/
+poetry run mypy src/
+poetry run bandit -r src/
 ```
 
 The pre-commit hooks will automatically:
@@ -244,9 +229,9 @@ aweber/
 │   └── __init__.py
 ├── tests/                      # Test files
 ├── alembic/                    # Database migration files
-├── aweberenv/                  # Virtual environment
 ├── docs/                       # Documentation files
 ├── pyproject.toml             # Poetry dependencies and project config
+├── poetry.lock                # Poetry lock file
 ├── .flake8                    # Flake8 configuration
 ├── bandit.yaml               # Bandit security configuration
 ├── .pre-commit-config.yaml   # Pre-commit hooks configuration
@@ -273,10 +258,10 @@ PORT=8000
 
 ## 🔧 Development Workflow
 
-1. **Activate virtual environment**: `source aweberenv/bin/activate`
+1. **Activate virtual environment**: `poetry shell`
 2. **Create feature branch**: `git checkout -b feature/your-feature`
 3. **Make changes** and write tests
-4. **Run tests**: `pytest`
+4. **Run tests**: `poetry run pytest`
 5. **Check code quality**: `pre-commit run --all-files`
 6. **Commit changes**: `git commit -m "feat: your feature"`
 7. **Push branch**: `git push origin feature/your-feature`
@@ -286,22 +271,20 @@ PORT=8000
 
 ### Virtual Environment Issues
 
-**Problem**: `aweberenv` not found or activation fails
+**Problem**: Virtual environment not found or activation fails
 ```bash
-# Solution: Recreate virtual environment
-rm -rf aweberenv
-python3.12 -m venv aweberenv
-source aweberenv/bin/activate
-pip install --upgrade pip
-pip install -e .
+# Solution: Recreate virtual environment with Poetry
+poetry env remove python
+poetry install
+poetry shell
 ```
 
 **Problem**: Dependencies not installing
 ```bash
-# Solution: Check Python version and update pip
+# Solution: Check Python version and clear Poetry cache
 python --version  # Should be 3.12+
-pip install --upgrade pip setuptools wheel
-pip install -e .
+poetry cache clear pypi --all
+poetry install
 ```
 
 ### Database Issues
@@ -309,19 +292,19 @@ pip install -e .
 **Problem**: Database connection errors
 ```bash
 # Solution: Run migrations
-alembic upgrade head
+poetry run alembic upgrade head
 
 # If database is corrupted, reset it
 rm widgets.db test_widgets.db
-alembic upgrade head
+poetry run alembic upgrade head
 ```
 
 **Problem**: Migration conflicts
 ```bash
 # Solution: Reset migration history
-alembic stamp head
-alembic revision --autogenerate -m "reset migration"
-alembic upgrade head
+poetry run alembic stamp head
+poetry run alembic revision --autogenerate -m "reset migration"
+poetry run alembic upgrade head
 ```
 
 ### Development Server Issues
@@ -335,15 +318,15 @@ lsof -i :8000
 kill -9 <PID>
 
 # Or use different port
-PORT=8080 python src/main.py
+PORT=8080 poetry run python src/main.py
 ```
 
 **Problem**: Import errors
 ```bash
-# Solution: Check virtual environment and PYTHONPATH
-source aweberenv/bin/activate
-export PYTHONPATH=$PYTHONPATH:$(pwd)/src
-python src/main.py
+# Solution: Check virtual environment and reinstall
+poetry shell
+poetry install
+poetry run python src/main.py
 ```
 
 ### Testing Issues
@@ -352,10 +335,10 @@ python src/main.py
 ```bash
 # Solution: Clean test database
 rm test_widgets.db
-pytest
+poetry run pytest
 
 # Or run tests with verbose output
-pytest -v -s
+poetry run pytest -v -s
 ```
 
 **Problem**: Pre-commit hooks failing
@@ -372,26 +355,26 @@ pre-commit autoupdate
 **Problem**: Linting errors
 ```bash
 # Solution: Auto-format code
-black src/ tests/
-isort src/ tests/
-flake8 src/ tests/  # Check remaining issues
+poetry run black src/ tests/
+poetry run isort src/ tests/
+poetry run flake8 src/ tests/  # Check remaining issues
 ```
 
 **Problem**: Type checking errors
 ```bash
 # Solution: Check mypy output and add type annotations
-mypy src/
+poetry run mypy src/
 ```
 
 ## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Activate virtual environment (`source aweberenv/bin/activate`)
-4. Install development dependencies (`pip install -e .`)
+3. Install dependencies (`poetry install`)
+4. Activate virtual environment (`poetry shell`)
 5. Set up pre-commit hooks (`pre-commit install`)
 6. Make your changes and add tests
-7. Run tests and quality checks (`pytest && pre-commit run --all-files`)
+7. Run tests and quality checks (`poetry run pytest && pre-commit run --all-files`)
 8. Commit your changes (`git commit -m 'Add amazing feature'`)
 9. Push to the branch (`git push origin feature/amazing-feature`)
 10. Open a Pull Request
