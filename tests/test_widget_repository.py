@@ -10,8 +10,7 @@ import pytest_asyncio
 
 from src.app.database import TestAsyncSessionLocal
 from src.app.exceptions import WidgetNotFoundException
-from src.app.models.pagination import PaginationResult
-from src.app.repository.widget import WidgetRepository
+from src.app.repositories.widget import PaginationResult, WidgetRepository
 from src.app.schemas.widget import WidgetCreate, WidgetUpdate
 
 # Database setup is handled by the autouse fixture in conftest.py
