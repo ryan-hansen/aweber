@@ -19,6 +19,8 @@ A modern, production-ready CRUD REST API built with Python 3.12 and FastAPI for 
 - Python 3.12+
 - Poetry (for dependency management) - **Note**: Poetry needs to be installed globally first
 
+`NOTE:` Poetry is recommended, but not required.  All commands in this README include non-poetry alternatives.
+
 ### About Poetry
 Poetry is a modern dependency management tool for Python. Unlike traditional packages, Poetry should be installed globally on your system (not as a project dependency) to bootstrap the project setup. See installation instructions below.
 
