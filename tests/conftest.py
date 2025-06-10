@@ -5,6 +5,7 @@ This module configures the test environment and provides shared fixtures
 for database setup, test client, and common test utilities.
 """
 
+import asyncio
 import sys
 from pathlib import Path
 
@@ -25,16 +26,6 @@ from src.app.database import (  # noqa: E402
 from src.app.main import create_app  # noqa: E402
 
 
-@pytest.fixture(scope="session")
-def event_loop():
-    """Create an instance of the default event loop for the test session."""
-    import asyncio
-
-    loop = asyncio.get_event_loop_policy().new_event_loop()
-    yield loop
-    loop.close()
-
-
 @pytest.fixture
 def test_app():
     """Create test FastAPI application with test database override."""
@@ -51,14 +42,14 @@ def client(test_app):
 
 
 @pytest.fixture(autouse=True, scope="function")
-async def setup_test_db():
+def setup_test_db():
     """Set up clean test database for each test function."""
     # Clean up before each test
-    await drop_test_tables()
-    await create_test_tables()
+    asyncio.run(drop_test_tables())
+    asyncio.run(create_test_tables())
     yield
     # Clean up after each test
-    await drop_test_tables()
+    asyncio.run(drop_test_tables())
 
 
 @pytest.fixture

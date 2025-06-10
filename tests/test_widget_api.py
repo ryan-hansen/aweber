@@ -5,43 +5,7 @@ This module tests all Widget API endpoints including CRUD operations,
 error handling, validation, pagination, and OpenAPI documentation.
 """
 
-import pytest
 from fastapi import status
-from fastapi.testclient import TestClient
-
-from src.app.database import (
-    create_test_tables,
-    drop_test_tables,
-    get_db,
-    get_test_db,
-)
-from src.app.main import create_app
-
-
-@pytest.fixture
-def test_app():
-    """Create test FastAPI application."""
-    app = create_app()
-    # Override the database dependency to use test database
-    app.dependency_overrides[get_db] = get_test_db
-    return app
-
-
-@pytest.fixture
-def client(test_app):
-    """Create test client."""
-    return TestClient(test_app)
-
-
-@pytest.fixture(autouse=True, scope="function")
-def setup_test_db(event_loop):
-    """Set up clean test database for each test."""
-    # Clean up before each test
-    event_loop.run_until_complete(drop_test_tables())
-    event_loop.run_until_complete(create_test_tables())
-    yield
-    # Clean up after each test
-    event_loop.run_until_complete(drop_test_tables())
 
 
 class TestWidgetCreateEndpoint:
