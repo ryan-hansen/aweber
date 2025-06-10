@@ -22,6 +22,8 @@ A modern, production-ready CRUD REST API built with Python 3.12 and FastAPI for 
 ### About Poetry
 Poetry is a modern dependency management tool for Python. Unlike traditional packages, Poetry should be installed globally on your system (not as a project dependency) to bootstrap the project setup. See installation instructions below.
 
+**Modern Poetry Usage**: The current best practice is to use `poetry run <command>` instead of `poetry shell`. This approach is more reliable, doesn't require managing shell state, and works consistently across different environments and CI/CD systems.
+
 ## 🛠️ Installation
 
 ### 1. Clone the repository
@@ -56,7 +58,15 @@ poetry install
 
 ### 4. Activate the virtual environment
 ```bash
+# Modern approach: Use poetry run for individual commands (recommended)
+poetry run python --version
+poetry run pytest
+
+# Alternative: Traditional shell activation (if needed)
 poetry shell
+
+# Note: poetry run is preferred for most use cases as it's more reliable
+# and doesn't require managing shell state
 ```
 
 ### 5. Set up pre-commit hooks (for development)
@@ -351,7 +361,7 @@ PORT=8000
 ## 🔧 Development Workflow
 
 ### Poetry Workflow
-1. **Activate virtual environment**: `poetry shell`
+1. **Run commands with Poetry**: `poetry run python --version` (recommended)
 2. **Create feature branch**: `git checkout -b feature/your-feature`
 3. **Make changes** and write tests
 4. **Run tests**: `poetry run pytest`
@@ -359,6 +369,8 @@ PORT=8000
 6. **Commit changes**: `git commit -m "feat: your feature"`
 7. **Push branch**: `git push origin feature/your-feature`
 8. **Create Pull Request**
+
+**Note**: Use `poetry run <command>` instead of activating the shell. This is more reliable and avoids shell state issues.
 
 ### Non-Poetry Workflow
 1. **Activate virtual environment**: `source aweberenv/bin/activate` (Windows: `aweberenv\Scripts\activate`)
@@ -381,7 +393,9 @@ PORT=8000
 # Solution: Recreate virtual environment with Poetry
 poetry env remove python
 poetry install
-poetry shell
+
+# Test the environment
+poetry run python --version
 ```
 
 #### Non-Poetry Solution:
@@ -546,13 +560,14 @@ mypy src/
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Install dependencies (`poetry install`)
-4. Activate virtual environment (`poetry shell`)
-5. Set up pre-commit hooks (`pre-commit install`)
-6. Make your changes and add tests
-7. Run tests and quality checks (`poetry run pytest && pre-commit run --all-files`)
-8. Commit your changes (`git commit -m 'Add amazing feature'`)
-9. Push to the branch (`git push origin feature/amazing-feature`)
-10. Open a Pull Request
+4. Set up pre-commit hooks (`poetry run pre-commit install`)
+5. Make your changes and add tests
+6. Run tests and quality checks (`poetry run pytest && pre-commit run --all-files`)
+7. Commit your changes (`git commit -m 'Add amazing feature'`)
+8. Push to the branch (`git push origin feature/amazing-feature`)
+9. Open a Pull Request
+
+**Note**: Use `poetry run <command>` for all commands instead of activating the shell with `poetry shell`.
 
 ### Non-Poetry Workflow
 1. Fork the repository
