@@ -22,7 +22,12 @@ A modern, production-ready CRUD REST API built with Python 3.12 and FastAPI for 
 ### About Poetry
 Poetry is a modern dependency management tool for Python. Unlike traditional packages, Poetry should be installed globally on your system (not as a project dependency) to bootstrap the project setup. See installation instructions below.
 
-**Modern Poetry Usage**: The current best practice is to use `poetry run <command>` instead of `poetry shell`. This approach is more reliable, doesn't require managing shell state, and works consistently across different environments and CI/CD systems.
+**Modern Poetry Usage**: Since Poetry 2.0, `poetry shell` was moved to a plugin. The current best practices are:
+1. **`poetry run <command>`** - For individual commands (most reliable)
+2. **`poetry env activate`** - Outputs activation command for shell integration
+3. **`poetry-plugin-shell`** - Optional plugin to restore `poetry shell` command
+
+The `poetry run` approach is preferred as it's more reliable and works consistently across different environments and CI/CD systems.
 
 ## 🛠️ Installation
 
@@ -57,17 +62,25 @@ poetry install
 ```
 
 ### 4. Activate the virtual environment
+
+**Poetry 2.0+ Options:**
+
 ```bash
-# Modern approach: Use poetry run for individual commands (recommended)
+# Option 1: Use poetry run for individual commands (recommended)
 poetry run python --version
 poetry run pytest
 
-# Alternative: Traditional shell activation (if needed)
-poetry shell
+# Option 2: Get activation command (Poetry 2.0+)
+poetry env activate
+# This outputs: source /path/to/venv/bin/activate
+# You can use it like: $(poetry env activate)
 
-# Note: poetry run is preferred for most use cases as it's more reliable
-# and doesn't require managing shell state
+# Option 3: Install the shell plugin (if you prefer the old poetry shell)
+poetry self add poetry-plugin-shell
+poetry shell
 ```
+
+**Note**: Since Poetry 2.0, `poetry shell` was removed from core and is now a plugin. The recommended approaches are `poetry run` for individual commands or `poetry env activate` to get the activation command.
 
 ### 5. Set up pre-commit hooks (for development)
 ```bash
@@ -396,6 +409,12 @@ poetry install
 
 # Test the environment
 poetry run python --version
+
+# If you need shell activation:
+$(poetry env activate)  # Activates the environment
+# OR install the shell plugin:
+poetry self add poetry-plugin-shell
+poetry shell
 ```
 
 #### Non-Poetry Solution:
