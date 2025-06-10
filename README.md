@@ -137,6 +137,7 @@ The API will be available at:
 
 ## 🧪 Testing
 
+### Poetry
 ```bash
 # Activate virtual environment (if not already activated)
 poetry shell
@@ -154,11 +155,30 @@ poetry run pytest tests/test_widget_model.py -v
 open htmlcov/index.html  # On macOS
 ```
 
+### Non-Poetry Alternative
+```bash
+# Activate virtual environment (if not already activated)
+source aweberenv/bin/activate  # On Windows: aweberenv\Scripts\activate
+
+# Run all tests
+python -m pytest
+
+# Run tests with coverage
+python -m pytest --cov=src --cov-report=html
+
+# Run specific test files
+python -m pytest tests/test_widget_model.py -v
+
+# View coverage report
+open htmlcov/index.html  # On macOS
+```
+
 ## 🔧 Development Tools
 
 ### Automated Quality Checks
 All code quality tools run automatically on every commit via pre-commit hooks:
 
+#### Poetry
 ```bash
 # One-time setup (after installing dependencies)
 pre-commit install
@@ -171,6 +191,21 @@ poetry run isort src/ tests/
 poetry run flake8 src/ tests/
 poetry run mypy src/
 poetry run bandit -r src/
+```
+
+#### Non-Poetry Alternative
+```bash
+# One-time setup (after installing dependencies)
+pre-commit install
+
+# Manual formatting (if needed)
+black src/ tests/
+isort src/ tests/
+
+# Manual checks (if needed)
+flake8 src/ tests/
+mypy src/
+bandit -r src/
 ```
 
 The pre-commit hooks will automatically:
@@ -315,10 +350,21 @@ PORT=8000
 
 ## 🔧 Development Workflow
 
+### Poetry Workflow
 1. **Activate virtual environment**: `poetry shell`
 2. **Create feature branch**: `git checkout -b feature/your-feature`
 3. **Make changes** and write tests
 4. **Run tests**: `poetry run pytest`
+5. **Check code quality**: `pre-commit run --all-files`
+6. **Commit changes**: `git commit -m "feat: your feature"`
+7. **Push branch**: `git push origin feature/your-feature`
+8. **Create Pull Request**
+
+### Non-Poetry Workflow
+1. **Activate virtual environment**: `source aweberenv/bin/activate` (Windows: `aweberenv\Scripts\activate`)
+2. **Create feature branch**: `git checkout -b feature/your-feature`
+3. **Make changes** and write tests
+4. **Run tests**: `python -m pytest`
 5. **Check code quality**: `pre-commit run --all-files`
 6. **Commit changes**: `git commit -m "feat: your feature"`
 7. **Push branch**: `git push origin feature/your-feature`
@@ -329,6 +375,8 @@ PORT=8000
 ### Virtual Environment Issues
 
 **Problem**: Virtual environment not found or activation fails
+
+#### Poetry Solution:
 ```bash
 # Solution: Recreate virtual environment with Poetry
 poetry env remove python
@@ -336,7 +384,19 @@ poetry install
 poetry shell
 ```
 
+#### Non-Poetry Solution:
+```bash
+# Solution: Recreate virtual environment manually
+rm -rf aweberenv
+python3 -m venv aweberenv
+source aweberenv/bin/activate  # On Windows: aweberenv\Scripts\activate
+pip install -r requirements.txt
+pip install -r requirements-dev.txt
+```
+
 **Problem**: Dependencies not installing
+
+#### Poetry Solution:
 ```bash
 # Solution: Check Python version and clear Poetry cache
 python --version  # Should be 3.12+
@@ -344,24 +404,32 @@ poetry cache clear pypi --all
 poetry install
 ```
 
+#### Non-Poetry Solution:
+```bash
+# Solution: Check Python version and reinstall dependencies
+python --version  # Should be 3.12+
+pip cache purge
+pip install -r requirements.txt -r requirements-dev.txt --force-reinstall
+```
+
 ### Database Issues
 
 **Problem**: Database connection errors
 ```bash
-# Solution: Run migrations
-poetry run alembic upgrade head
+# Solution: Run migrations (works with both Poetry and non-Poetry)
+alembic upgrade head
 
 # If database is corrupted, reset it
 rm widgets.db test_widgets.db
-poetry run alembic upgrade head
+alembic upgrade head
 ```
 
 **Problem**: Migration conflicts
 ```bash
-# Solution: Reset migration history
-poetry run alembic stamp head
-poetry run alembic revision --autogenerate -m "reset migration"
-poetry run alembic upgrade head
+# Solution: Reset migration history (works with both Poetry and non-Poetry)
+alembic stamp head
+alembic revision --autogenerate -m "reset migration"
+alembic upgrade head
 ```
 
 ### Development Server Issues
@@ -373,17 +441,36 @@ lsof -i :8000
 
 # Kill existing process
 kill -9 <PID>
+```
 
+#### Poetry Solution:
+```bash
 # Or use different port
 PORT=8080 poetry run python src/main.py
 ```
 
+#### Non-Poetry Solution:
+```bash
+# Or use different port
+PORT=8080 python src/main.py
+```
+
 **Problem**: Import errors
+
+#### Poetry Solution:
 ```bash
 # Solution: Check virtual environment and reinstall
 poetry shell
 poetry install
 poetry run python src/main.py
+```
+
+#### Non-Poetry Solution:
+```bash
+# Solution: Check virtual environment and reinstall
+source aweberenv/bin/activate  # On Windows: aweberenv\Scripts\activate
+pip install -r requirements.txt -r requirements-dev.txt
+python src/main.py
 ```
 
 ### Testing Issues
@@ -392,15 +479,27 @@ poetry run python src/main.py
 ```bash
 # Solution: Clean test database
 rm test_widgets.db
+```
+
+#### Poetry Solution:
+```bash
 poetry run pytest
 
 # Or run tests with verbose output
 poetry run pytest -v -s
 ```
 
+#### Non-Poetry Solution:
+```bash
+python -m pytest
+
+# Or run tests with verbose output
+python -m pytest -v -s
+```
+
 **Problem**: Pre-commit hooks failing
 ```bash
-# Solution: Run hooks manually and fix issues
+# Solution: Run hooks manually and fix issues (works with both Poetry and non-Poetry)
 pre-commit run --all-files
 
 # Update pre-commit hooks
@@ -410,6 +509,8 @@ pre-commit autoupdate
 ### Code Quality Issues
 
 **Problem**: Linting errors
+
+#### Poetry Solution:
 ```bash
 # Solution: Auto-format code
 poetry run black src/ tests/
@@ -417,14 +518,31 @@ poetry run isort src/ tests/
 poetry run flake8 src/ tests/  # Check remaining issues
 ```
 
+#### Non-Poetry Solution:
+```bash
+# Solution: Auto-format code
+black src/ tests/
+isort src/ tests/
+flake8 src/ tests/  # Check remaining issues
+```
+
 **Problem**: Type checking errors
+
+#### Poetry Solution:
 ```bash
 # Solution: Check mypy output and add type annotations
 poetry run mypy src/
 ```
 
+#### Non-Poetry Solution:
+```bash
+# Solution: Check mypy output and add type annotations
+mypy src/
+```
+
 ## 🤝 Contributing
 
+### Poetry Workflow
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Install dependencies (`poetry install`)
@@ -432,6 +550,18 @@ poetry run mypy src/
 5. Set up pre-commit hooks (`pre-commit install`)
 6. Make your changes and add tests
 7. Run tests and quality checks (`poetry run pytest && pre-commit run --all-files`)
+8. Commit your changes (`git commit -m 'Add amazing feature'`)
+9. Push to the branch (`git push origin feature/amazing-feature`)
+10. Open a Pull Request
+
+### Non-Poetry Workflow
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Create and activate virtual environment (`python3 -m venv aweberenv && source aweberenv/bin/activate`)
+4. Install dependencies (`pip install -r requirements.txt -r requirements-dev.txt`)
+5. Set up pre-commit hooks (`pre-commit install`)
+6. Make your changes and add tests
+7. Run tests and quality checks (`python -m pytest && pre-commit run --all-files`)
 8. Commit your changes (`git commit -m 'Add amazing feature'`)
 9. Push to the branch (`git push origin feature/amazing-feature`)
 10. Open a Pull Request
