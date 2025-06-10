@@ -205,9 +205,6 @@ All code quality tools run automatically on every commit via pre-commit hooks:
 
 #### Poetry
 ```bash
-# One-time setup (after installing dependencies)
-pre-commit install
-
 # Manual formatting (if needed)
 poetry run black src/ tests/
 poetry run isort src/ tests/
@@ -220,9 +217,6 @@ poetry run bandit -r src/
 
 #### Non-Poetry Alternative
 ```bash
-# One-time setup (after installing dependencies)
-pre-commit install
-
 # Manual formatting (if needed)
 black src/ tests/
 isort src/ tests/
