@@ -97,7 +97,7 @@ alembic upgrade head
 
 ## 🏃‍♂️ Running the Application
 
-### Development Server
+### Development Server - Poetry
 ```bash
 # Activate virtual environment first (if not already activated)
 poetry shell
@@ -110,6 +110,15 @@ poetry run uvicorn src.app.main:app --reload
 
 # For network access (Docker, external devices)
 HOST=0.0.0.0 PORT=8000 poetry run python src/main.py
+```
+
+### Development Server - Non-poetry
+```bash
+# Assuming active virtual env
+python src/main.py
+
+# Or direct uvicorn
+python -m uvicorn src.app.main:app --reload
 ```
 
 The API will be available at:
