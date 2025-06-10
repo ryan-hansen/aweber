@@ -17,7 +17,10 @@ A modern, production-ready CRUD REST API built with Python 3.12 and FastAPI for 
 ## 📋 Requirements
 
 - Python 3.12+
-- Poetry (for dependency management)
+- Poetry (for dependency management) - **Note**: Poetry needs to be installed globally first
+
+### About Poetry
+Poetry is a modern dependency management tool for Python. Unlike traditional packages, Poetry should be installed globally on your system (not as a project dependency) to bootstrap the project setup. See installation instructions below.
 
 ## 🛠️ Installation
 
@@ -27,25 +30,70 @@ git clone <repository-url>
 cd aweber
 ```
 
-### 2. Install dependencies with Poetry
+### 2. Install Poetry (if not already installed)
+
+**Option A: Official installer (recommended)**
+```bash
+curl -sSL https://install.python-poetry.org | python3 -
+```
+
+**Option B: Via pip (global installation)**
+```bash
+pip install poetry
+```
+
+**Option C: Via pipx (isolated installation)**
+```bash
+pipx install poetry
+```
+
+For more installation options, see: https://python-poetry.org/docs/#installation
+
+### 3. Install dependencies with Poetry
 ```bash
 poetry install
 ```
 
-### 3. Activate the virtual environment
+### 4. Activate the virtual environment
 ```bash
 poetry shell
 ```
 
-### 4. Set up pre-commit hooks (for development)
+### 5. Set up pre-commit hooks (for development)
 ```bash
 pre-commit install
 ```
 
-### 5. Run database migrations
+### 6. Run database migrations
 ```bash
 alembic upgrade head
 ```
+
+## 🔄 Alternative Installation (without Poetry)
+
+If you prefer not to use Poetry, you can use Python's built-in venv and pip:
+
+```bash
+# Create virtual environment
+python3 -m venv aweberenv
+
+# Activate virtual environment
+source aweberenv/bin/activate  # On Windows: aweberenv\Scripts\activate
+
+# Install core dependencies
+pip install -r requirements.txt
+
+# Install development dependencies (for testing, linting, etc.)
+pip install -r requirements-dev.txt
+
+# Set up pre-commit hooks
+pre-commit install
+
+# Run database migrations
+alembic upgrade head
+```
+
+**Note:** The Poetry approach is recommended as it provides better dependency resolution and lock file management.
 
 ## 🏃‍♂️ Running the Application
 
