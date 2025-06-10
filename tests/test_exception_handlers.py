@@ -1,21 +1,20 @@
 """
 Tests for exception handlers.
 
-This module tests all exception handlers to ensure they properly
-convert exceptions to JSON responses with correct status codes,
-error formatting, and logging.
+This module tests the exception handling system including custom exception
+handlers, error response formatting, and integration with FastAPI.
 """
 
 import json
 from unittest.mock import Mock, patch
 
 import pytest
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, status
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
 from fastapi.testclient import TestClient
 from pydantic import ValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.responses import JSONResponse
 
 from src.app.exception_handlers import (
     base_api_exception_handler,
@@ -107,17 +106,6 @@ class TestCreateErrorResponse:
 class TestBaseAPIExceptionHandler:
     """Test base_api_exception_handler function."""
 
-    @pytest.fixture
-    def mock_request(self):
-        """Create a mock request object."""
-        request = Mock(spec=Request)
-        request.url = Mock()
-        request.url.__str__ = Mock(return_value="http://test.com/api/widgets")
-        request.method = "POST"
-        request.state = Mock()
-        request.state.request_id = "test-request-123"
-        return request
-
     @pytest.mark.asyncio
     async def test_base_api_exception_handler(self, mock_request):
         """Test handling of BaseAPIException."""
@@ -135,7 +123,7 @@ class TestBaseAPIExceptionHandler:
         mock_log.assert_called_once()
         call_args = mock_log.call_args
         assert call_args[0][0] == exc  # First argument should be the exception
-        assert call_args[1]["request_id"] == "test-request-123"
+        assert call_args[1]["request_id"] == "test-123"
 
         # Verify response
         assert isinstance(response, JSONResponse)
@@ -169,17 +157,6 @@ class TestBaseAPIExceptionHandler:
 
 class TestValidationExceptionHandler:
     """Test validation_exception_handler function."""
-
-    @pytest.fixture
-    def mock_request(self):
-        """Create a mock request object."""
-        request = Mock(spec=Request)
-        request.url = Mock()
-        request.url.__str__ = Mock(return_value="http://test.com/api/widgets")
-        request.method = "POST"
-        request.state = Mock()
-        request.state.request_id = "test-request-123"
-        return request
 
     @pytest.mark.asyncio
     async def test_validation_exception_handler(self, mock_request):
@@ -251,17 +228,6 @@ class TestValidationExceptionHandler:
 class TestPydanticValidationExceptionHandler:
     """Test pydantic_validation_exception_handler function."""
 
-    @pytest.fixture
-    def mock_request(self):
-        """Create a mock request object."""
-        request = Mock(spec=Request)
-        request.url = Mock()
-        request.url.__str__ = Mock(return_value="http://test.com/api/widgets")
-        request.method = "POST"
-        request.state = Mock()
-        request.state.request_id = "test-request-123"
-        return request
-
     @pytest.mark.asyncio
     async def test_pydantic_validation_exception_handler(self, mock_request):
         """Test handling of Pydantic ValidationError."""
@@ -293,19 +259,6 @@ class TestPydanticValidationExceptionHandler:
 
 class TestHTTPExceptionHandler:
     """Test http_exception_handler function."""
-
-    @pytest.fixture
-    def mock_request(self):
-        """Create a mock request object."""
-        request = Mock(spec=Request)
-        request.url = Mock()
-        request.url.__str__ = Mock(
-            return_value="http://test.com/api/widgets/999"
-        )
-        request.method = "GET"
-        request.state = Mock()
-        request.state.request_id = "test-request-123"
-        return request
 
     @pytest.mark.asyncio
     async def test_http_exception_handler_404(self, mock_request):
@@ -363,17 +316,6 @@ class TestHTTPExceptionHandler:
 
 class TestGenericExceptionHandler:
     """Test generic_exception_handler function."""
-
-    @pytest.fixture
-    def mock_request(self):
-        """Create a mock request object."""
-        request = Mock(spec=Request)
-        request.url = Mock()
-        request.url.__str__ = Mock(return_value="http://test.com/api/widgets")
-        request.method = "POST"
-        request.state = Mock()
-        request.state.request_id = "test-request-123"
-        return request
 
     @pytest.mark.asyncio
     @patch("src.app.exception_handlers.settings")
@@ -462,8 +404,8 @@ class TestExceptionHandlerIntegration:
     """Integration tests for exception handlers with FastAPI app."""
 
     @pytest.fixture
-    def app(self):
-        """Create a test FastAPI app with exception handlers."""
+    def exception_test_app(self):
+        """Create a test FastAPI app with exception handlers for testing exceptions."""
         app = FastAPI()
 
         # Register exception handlers
@@ -498,9 +440,9 @@ class TestExceptionHandlerIntegration:
 
         return app
 
-    def test_base_exception_integration(self, app):
+    def test_base_exception_integration(self, exception_test_app):
         """Test BaseAPIException handling integration."""
-        with TestClient(app) as client:
+        with TestClient(exception_test_app) as client:
             response = client.get("/test/base-exception")
 
         assert response.status_code == 400
@@ -510,9 +452,9 @@ class TestExceptionHandlerIntegration:
         assert "request_id" in data
         assert "timestamp" in data
 
-    def test_widget_not_found_integration(self, app):
+    def test_widget_not_found_integration(self, exception_test_app):
         """Test WidgetNotFoundException handling integration."""
-        with TestClient(app) as client:
+        with TestClient(exception_test_app) as client:
             response = client.get("/test/widget-not-found")
 
         assert response.status_code == 404
@@ -520,7 +462,7 @@ class TestExceptionHandlerIntegration:
         assert data["error"] == "WIDGET_NOT_FOUND"
         assert "123" in data["message"]
 
-    def test_generic_exception_integration(self, app):
+    def test_generic_exception_integration(self, exception_test_app):
         """Test generic exception handling integration."""
         # Skip this test for now as it has TestClient/middleware interaction issues
         # The core exception handler functionality is tested separately
@@ -528,9 +470,9 @@ class TestExceptionHandlerIntegration:
             "TestClient has middleware interaction issues with exception handlers"
         )
 
-    def test_validation_error_integration(self, app):
+    def test_validation_error_integration(self, exception_test_app):
         """Test validation error handling integration."""
-        with TestClient(app) as client:
+        with TestClient(exception_test_app) as client:
             response = client.post(
                 "/test/validation-error", json={"name": "", "count": -1}
             )

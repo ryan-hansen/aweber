@@ -1,4 +1,9 @@
-"""Test cases for Widget SQLAlchemy model."""
+"""
+Tests for Widget model functionality.
+
+This module tests the Widget SQLAlchemy model including field validation,
+constraints, relationships, and database-level functionality.
+"""
 
 from datetime import datetime
 

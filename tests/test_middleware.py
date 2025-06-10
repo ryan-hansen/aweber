@@ -24,43 +24,6 @@ from src.app.middleware import (
 class TestRequestLoggingMiddleware:
     """Test RequestLoggingMiddleware functionality."""
 
-    @pytest.fixture
-    def app_with_middleware(self):
-        """Create a FastAPI app with logging middleware."""
-        app = FastAPI()
-        app.add_middleware(RequestLoggingMiddleware)
-
-        @app.get("/test")
-        async def test_endpoint():
-            return {"message": "success"}
-
-        @app.get("/test/error")
-        async def test_error_endpoint():
-            raise ValueError("Test error")
-
-        return app
-
-    @pytest.fixture
-    def mock_request(self):
-        """Create a mock request object."""
-        request = Mock(spec=Request)
-        request.method = "GET"
-        request.url = Mock()
-        request.url.path = "/api/widgets"
-        request.state = Mock()
-        request.client = Mock()
-        request.client.host = "127.0.0.1"
-        request.headers = {}
-        return request
-
-    @pytest.fixture
-    def mock_response(self):
-        """Create a mock response object."""
-        response = Mock(spec=Response)
-        response.status_code = 200
-        response.headers = {}
-        return response
-
     @pytest.mark.asyncio
     async def test_request_logging_middleware_success(
         self, mock_request, mock_response
@@ -206,16 +169,6 @@ class TestRequestValidationMiddleware:
         """Create middleware instance."""
         return RequestValidationMiddleware(app=Mock())
 
-    @pytest.fixture
-    def mock_request(self):
-        """Create a mock request object."""
-        request = Mock(spec=Request)
-        request.method = "POST"
-        request.url = Mock()
-        request.url.path = "/api/widgets"
-        request.headers = {"content-type": "application/json"}
-        return request
-
     @pytest.mark.asyncio
     async def test_valid_request(self, middleware, mock_request):
         """Test middleware passes valid requests."""
@@ -333,7 +286,7 @@ class TestSecurityHeadersMiddleware:
     """Test SecurityHeadersMiddleware functionality."""
 
     @pytest.fixture
-    def app_with_middleware(self):
+    def app_with_security_middleware(self):
         """Create a FastAPI app with security headers middleware."""
         app = FastAPI()
         app.add_middleware(SecurityHeadersMiddleware)
@@ -344,9 +297,9 @@ class TestSecurityHeadersMiddleware:
 
         return app
 
-    def test_security_headers_added(self, app_with_middleware):
+    def test_security_headers_added(self, app_with_security_middleware):
         """Test security headers are added to responses."""
-        with TestClient(app_with_middleware) as client:
+        with TestClient(app_with_security_middleware) as client:
             response = client.get("/test")
 
         assert response.status_code == 200
@@ -372,17 +325,6 @@ class TestErrorTrackingMiddleware:
     def middleware(self):
         """Create middleware instance."""
         return ErrorTrackingMiddleware(app=Mock())
-
-    @pytest.fixture
-    def mock_request(self):
-        """Create a mock request object."""
-        request = Mock(spec=Request)
-        request.method = "GET"
-        request.url = Mock()
-        request.url.path = "/api/widgets"
-        request.state = Mock()
-        request.state.request_id = "test-123"
-        return request
 
     @pytest.mark.asyncio
     async def test_successful_request_no_tracking(

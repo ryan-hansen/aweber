@@ -1,42 +1,28 @@
 """
-Tests for Widget repository.
+Tests for Widget repository operations.
 
-This module tests all Widget repository CRUD operations, error handling,
-pagination, and database integration scenarios.
+This module tests the WidgetRepository class including CRUD operations,
+pagination, error handling, and database interactions.
 """
 
 import pytest
 import pytest_asyncio
 
-from src.app.database import (
-    TestAsyncSessionLocal,
-    create_test_tables,
-    drop_test_tables,
-)
-from src.app.repositories.widget import (
-    PaginationResult,
-    WidgetNotFoundError,
-    WidgetRepository,
-)
+from src.app.database import TestAsyncSessionLocal
+from src.app.exceptions import WidgetNotFoundException
+from src.app.models.pagination import PaginationResult
+from src.app.repository.widget import WidgetRepository
 from src.app.schemas.widget import WidgetCreate, WidgetUpdate
+
+# Database setup is handled by the autouse fixture in conftest.py
 
 
 @pytest_asyncio.fixture
 async def widget_repo():
-    """Create a widget repository with fresh test database."""
-    # Ensure clean database for each test
-    await drop_test_tables()
-    await create_test_tables()
-
+    """Create a widget repository for testing."""
     async with TestAsyncSessionLocal() as session:
         repo = WidgetRepository(session)
         yield repo
-
-    # Cleanup after test
-    await drop_test_tables()
-
-
-# Each test method will handle its own database setup for better isolation
 
 
 async def create_sample_widgets(repo: WidgetRepository):
@@ -61,22 +47,17 @@ class TestWidgetRepositoryCreate:
     """Test widget creation operations."""
 
     @pytest.mark.asyncio
-    async def test_create_widget_success(self):
+    async def test_create_widget_success(self, widget_repo):
         """Test successful widget creation."""
-        # Ensure tables exist
-        await create_test_tables()
+        widget_data = WidgetCreate(name="Test Widget", number_of_parts=5)
 
-        async with TestAsyncSessionLocal() as session:
-            widget_repo = WidgetRepository(session)
-            widget_data = WidgetCreate(name="Test Widget", number_of_parts=5)
+        widget = await widget_repo.create(widget_data)
 
-            widget = await widget_repo.create(widget_data)
-
-            assert widget.id is not None
-            assert widget.name == "Test Widget"
-            assert widget.number_of_parts == 5
-            assert widget.created_at is not None
-            assert widget.updated_at is not None
+        assert widget.id is not None
+        assert widget.name == "Test Widget"
+        assert widget.number_of_parts == 5
+        assert widget.created_at is not None
+        assert widget.updated_at is not None
 
     @pytest.mark.asyncio
     async def test_create_widget_with_name_trimming(self, widget_repo):
@@ -134,7 +115,7 @@ class TestWidgetRepositoryRead:
     @pytest.mark.asyncio
     async def test_get_by_id_not_found(self, widget_repo):
         """Test widget retrieval with non-existent ID."""
-        with pytest.raises(WidgetNotFoundError) as exc_info:
+        with pytest.raises(WidgetNotFoundException) as exc_info:
             await widget_repo.get_by_id(999)
 
         assert "Widget with ID 999 not found" in str(exc_info.value)
@@ -268,7 +249,7 @@ class TestWidgetRepositoryUpdate:
         """Test updating non-existent widget."""
         update_data = WidgetUpdate(name="Updated Widget")
 
-        with pytest.raises(WidgetNotFoundError):
+        with pytest.raises(WidgetNotFoundException):
             await widget_repo.update(999, update_data)
 
     @pytest.mark.asyncio
@@ -293,13 +274,13 @@ class TestWidgetRepositoryDelete:
         assert result is True
 
         # Verify widget is deleted
-        with pytest.raises(WidgetNotFoundError):
+        with pytest.raises(WidgetNotFoundException):
             await widget_repo.get_by_id(widget_id)
 
     @pytest.mark.asyncio
     async def test_delete_widget_not_found(self, widget_repo):
         """Test deleting non-existent widget."""
-        with pytest.raises(WidgetNotFoundError):
+        with pytest.raises(WidgetNotFoundException):
             await widget_repo.delete(999)
 
 
@@ -431,7 +412,7 @@ class TestWidgetRepositoryIntegration:
         assert delete_result is True
 
         # Verify deletion
-        with pytest.raises(WidgetNotFoundError):
+        with pytest.raises(WidgetNotFoundException):
             await widget_repo.get_by_id(created_widget.id)
 
     @pytest.mark.asyncio
